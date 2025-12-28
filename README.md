@@ -2,9 +2,7 @@
 
 A browser-based 3D CAD application for architectural modeling, inspired by SketchUp. Draw lines, create shapes, and build 3D structures with an intuitive interface and AI-powered assistance.
 
-https://github.com/user-attachments/assets/poche.mp4
-
-<video src="poche.mp4" controls width="100%"></video>
+![Poche Demo](poche.gif)
 
 ## Features
 
