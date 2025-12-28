@@ -1,36 +1,36 @@
 /**
  * Ground plane grid for the CAD viewport.
- * Uses feet and inches: minor ticks = inches, major ticks = feet.
- * 1 foot = 12 inches
+ * Architectural scale: 1 unit = 1 inch
+ * Minor grid = 1 foot (12"), Major grid = 10 feet (120")
+ * Designed for lot sizes up to 1+ acre (208' x 208')
  */
 
 import { Grid } from '@react-three/drei';
 
 // Grid constants (1 unit = 1 inch)
-const INCHES_PER_FOOT = 12;
-const CELL_SIZE = 1; // 1 inch
-const SECTION_SIZE = INCHES_PER_FOOT; // 1 foot
+const CELL_SIZE = 12; // 1 foot
+const SECTION_SIZE = 120; // 10 feet
 
 export function CADGrid() {
   return (
     <>
-      {/* Main infinite grid - inches and feet */}
+      {/* Architectural scale grid */}
       <Grid
         position={[0, 0, 0]}
-        args={[200, 200]}
+        args={[5000, 5000]}
         cellSize={CELL_SIZE}
-        cellThickness={0.3}
-        cellColor="#3a4555"
+        cellThickness={0.4}
+        cellColor="#2d3748"
         sectionSize={SECTION_SIZE}
-        sectionThickness={1.2}
-        sectionColor="#718096"
-        fadeDistance={150}
-        fadeStrength={1}
+        sectionThickness={1.5}
+        sectionColor="#4a5568"
+        fadeDistance={3000}
+        fadeStrength={1.5}
         infiniteGrid
       />
 
-      {/* Axis lines at origin */}
-      <axesHelper args={[24]} />
+      {/* Axis lines - 10 feet each direction */}
+      <axesHelper args={[120]} />
     </>
   );
 }

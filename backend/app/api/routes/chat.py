@@ -51,5 +51,5 @@ async def chat_status() -> dict:
     """Check if chat service is configured and available."""
     return {
         "configured": bool(settings.openai_api_key),
-        "model": "gpt-4o-mini",
+        "model": "gpt-5-mini",
     }

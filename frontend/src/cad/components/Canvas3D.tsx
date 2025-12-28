@@ -31,9 +31,9 @@ function CameraControls() {
       rotateSpeed={0.5}
       panSpeed={0.5}
       enableZoom={true}
-      zoomSpeed={1.0}
-      minDistance={5}
-      maxDistance={500}
+      zoomSpeed={0.5}
+      minDistance={10}
+      maxDistance={10000}
       maxPolarAngle={Math.PI * 0.95}
       mouseButtons={{
         LEFT: isOrbitEnabled ? MOUSE.ROTATE : undefined as unknown as MOUSE,
@@ -49,10 +49,10 @@ export function Canvas3D({ showStats = false }: Canvas3DProps) {
     <div className="w-full h-full bg-gray-100">
       <Canvas
         camera={{
-          position: [15, 15, 15],
+          position: [300, 250, 300],
           fov: 50,
-          near: 0.1,
-          far: 1000,
+          near: 1,
+          far: 50000,
         }}
         gl={{
           antialias: true,

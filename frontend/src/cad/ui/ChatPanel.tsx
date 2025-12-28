@@ -92,6 +92,80 @@ export function ChatPanel() {
       addEdge(vIds[2], vIds[3]);
       addEdge(vIds[3], vIds[0]);
 
+    } else if (action === 'create_terrain') {
+      const widthFt = (params.width as number) || 208;
+      const depthFt = (params.depth as number) || 208;
+      const terrainType = (params.terrain_type as string) || 'sloped';
+      const maxHeightFt = (params.max_height as number) || 30;
+      const cliffSide = (params.cliff_side as string) || 'south';
+      const resolution = Math.min((params.resolution as number) || 12, 20); // Cap at 20 for performance
+
+      // Convert to inches
+      const width = widthFt * 12;
+      const depth = depthFt * 12;
+      const maxHeight = maxHeightFt * 12;
+
+      // Generate height map
+      const getHeight = (nx: number, nz: number): number => {
+        // nx, nz are 0-1 normalized coordinates
+        let h = 0;
+
+        if (terrainType === 'flat') {
+          h = 0;
+        } else if (terrainType === 'sloped') {
+          // Gentle slope with cliff at one end
+          const cliffPos = cliffSide === 'south' ? nz : cliffSide === 'north' ? (1 - nz) : cliffSide === 'east' ? nx : (1 - nx);
+          if (cliffPos > 0.85) {
+            h = maxHeight * (1 - (cliffPos - 0.85) * 6); // Sharp drop
+          } else {
+            h = maxHeight * (cliffPos / 0.85) * 0.7; // Gradual slope
+          }
+          // Add some noise
+          h += Math.sin(nx * 12) * Math.cos(nz * 8) * maxHeight * 0.05;
+        } else if (terrainType === 'hill') {
+          const cx = nx - 0.5, cz = nz - 0.5;
+          h = maxHeight * Math.max(0, 1 - Math.sqrt(cx * cx + cz * cz) * 2);
+        } else if (terrainType === 'cliff') {
+          const cliffPos = cliffSide === 'south' ? nz : cliffSide === 'north' ? (1 - nz) : cliffSide === 'east' ? nx : (1 - nx);
+          h = cliffPos > 0.7 ? 0 : maxHeight;
+        } else if (terrainType === 'valley') {
+          const cx = Math.abs(nx - 0.5) * 2;
+          h = maxHeight * cx;
+        }
+
+        return Math.max(0, h);
+      };
+
+      // Create grid of vertices
+      const vertices: string[][] = [];
+      const halfW = width / 2;
+      const halfD = depth / 2;
+
+      for (let zi = 0; zi <= resolution; zi++) {
+        const row: string[] = [];
+        for (let xi = 0; xi <= resolution; xi++) {
+          const nx = xi / resolution;
+          const nz = zi / resolution;
+          const x = -halfW + nx * width;
+          const z = -halfD + nz * depth;
+          const y = getHeight(nx, nz);
+          row.push(addVertex([x, y, z]));
+        }
+        vertices.push(row);
+      }
+
+      // Create edges (grid lines)
+      for (let zi = 0; zi <= resolution; zi++) {
+        for (let xi = 0; xi <= resolution; xi++) {
+          if (xi < resolution) {
+            addEdge(vertices[zi][xi], vertices[zi][xi + 1]);
+          }
+          if (zi < resolution) {
+            addEdge(vertices[zi][xi], vertices[zi + 1][xi]);
+          }
+        }
+      }
+
     } else if (action === 'clear_scene') {
       clearScene();
     }

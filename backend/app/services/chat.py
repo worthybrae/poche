@@ -118,6 +118,51 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "create_terrain",
+            "description": "Create terrain/land with hills, slopes, or cliffs. Use for outdoor landscapes, building sites, yards.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "width": {
+                        "type": "number",
+                        "description": "Width in feet (1 acre ≈ 208x208 ft)",
+                        "default": 208,
+                    },
+                    "depth": {
+                        "type": "number",
+                        "description": "Depth in feet",
+                        "default": 208,
+                    },
+                    "terrain_type": {
+                        "type": "string",
+                        "description": "Type of terrain: 'flat', 'sloped', 'hill', 'cliff', 'valley'",
+                        "enum": ["flat", "sloped", "hill", "cliff", "valley"],
+                        "default": "sloped",
+                    },
+                    "max_height": {
+                        "type": "number",
+                        "description": "Maximum elevation in feet",
+                        "default": 30,
+                    },
+                    "cliff_side": {
+                        "type": "string",
+                        "description": "Which side has the cliff: 'north', 'south', 'east', 'west'",
+                        "enum": ["north", "south", "east", "west"],
+                        "default": "south",
+                    },
+                    "resolution": {
+                        "type": "integer",
+                        "description": "Grid resolution (8-20 recommended for performance)",
+                        "default": 12,
+                    },
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "clear_scene",
             "description": "Clear all geometry from the scene. Use when user asks to clear, reset, or start fresh.",
             "parameters": {
@@ -229,7 +274,7 @@ class ChatService:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.api_url = "http://localhost:8000"  # Internal API URL
-        self.model = "gpt-4o-mini"
+        self.model = "gpt-5-mini"
 
     async def _execute_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict:
         """Execute a tool and return the result."""
@@ -262,6 +307,20 @@ class ChatService:
                     },
                     "success": True,
                     "message": "Rectangle created",
+                }
+            elif tool_name == "create_terrain":
+                return {
+                    "action": "create_terrain",
+                    "params": {
+                        "width": arguments.get("width", 208),
+                        "depth": arguments.get("depth", 208),
+                        "terrain_type": arguments.get("terrain_type", "sloped"),
+                        "max_height": arguments.get("max_height", 30),
+                        "cliff_side": arguments.get("cliff_side", "south"),
+                        "resolution": arguments.get("resolution", 12),
+                    },
+                    "success": True,
+                    "message": "Terrain created",
                 }
             elif tool_name == "clear_scene":
                 return {
