@@ -1,15 +1,31 @@
-# App Template
+# Poche
 
-A full-stack application template with AI-assisted development capabilities via MCP (Model Context Protocol).
+A browser-based 3D CAD application for architectural modeling, inspired by SketchUp. Draw lines, create shapes, and build 3D structures with an intuitive interface and AI-powered assistance.
 
-## Stack
+https://github.com/user-attachments/assets/poche.mp4
+
+<video src="poche.mp4" controls width="100%"></video>
+
+## Features
+
+- **3D Drawing Tools** - Line, rectangle, circle, and arc tools with grid snapping
+- **Axis Inference** - SketchUp-style colored axis lines (red=X, green=Y, blue=Z)
+- **Hold-to-Activate Tools** - Hold A for line, S for square, D for circle
+- **Camera Controls** - Orbit (hold Shift + drag), pan (right-click drag), zoom (scroll)
+- **Undo/Redo** - Cmd+Z to undo, Cmd+X to redo
+- **AI Assistant** - Natural language commands to create geometry ("make a red box", "create terrain")
+- **Architectural Scale** - Optimized for real-world dimensions (1 unit = 1 inch)
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Backend | Python FastAPI + SQLModel + Alembic |
-| Frontend | React + TypeScript + Vite + Tailwind + shadcn/ui |
+| 3D Rendering | React Three Fiber + Three.js |
+| State Management | Zustand + Immer |
+| Frontend | React + TypeScript + Vite + Tailwind |
+| Backend | Python FastAPI + SQLModel |
+| AI Integration | OpenAI GPT with function calling |
 | Database | PostgreSQL 16 |
-| MCP Server | Python (FastMCP) - unified server with 3 integrations |
 
 ## Quick Start
 
@@ -18,147 +34,85 @@ A full-stack application template with AI-assisted development capabilities via 
    cp .env.example .env
    ```
 
-2. **Start the development environment**
+2. **Add your OpenAI API key** (for AI features)
    ```bash
-   chmod +x scripts/start-dev.sh
-   ./scripts/start-dev.sh
+   # In .env file
+   OPENAI_API_KEY=your-key-here
    ```
 
-   Or manually:
+3. **Start the development environment**
    ```bash
    docker compose up -d
    ```
 
-3. **Access the services**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-   - MCP Server: http://localhost:8080
+4. **Open the editor**
+   - http://localhost:5173
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `L` | Toggle line tool |
+| `A` (hold) | Line tool while held |
+| `S` (hold) | Rectangle tool while held |
+| `D` (hold) | Circle tool while held |
+| `Shift` (hold) | Enable orbit camera |
+| `Cmd+Z` | Undo |
+| `Cmd+X` | Redo |
+| `/` | Focus AI command bar |
+| `Escape` | Cancel current drawing / close AI panel |
+
+## AI Commands
+
+Press `/` to focus the AI command bar, then try:
+
+- "Create a red box"
+- "Make a 10x10 foot rectangle"
+- "Create terrain with a hill"
+- "Clear the scene"
 
 ## Project Structure
 
 ```
-app-template/
-├── backend/           # FastAPI backend
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── api/routes/
-│   │   ├── models/
-│   │   └── schemas/
-│   └── alembic/       # Database migrations
-├── frontend/          # React frontend
-│   ├── src/
-│   │   ├── components/ui/
-│   │   ├── pages/
-│   │   └── api/
-│   └── tailwind.config.ts
-├── mcp-server/        # Unified MCP server
+poche/
+├── frontend/
 │   └── src/
-│       ├── server.py
-│       └── integrations/
-│           ├── postgres.py
-│           ├── fastapi.py
-│           └── playwright.py
+│       ├── cad/
+│       │   ├── core/         # State management, types, utilities
+│       │   ├── components/   # 3D rendering (Canvas, Scene, Faces, etc.)
+│       │   ├── tools/        # Drawing tools
+│       │   └── ui/           # Toolbar, StatusBar, ChatPanel
+│       ├── pages/
+│       │   └── Editor.tsx    # Main CAD editor page
+│       └── api/              # API client
+├── backend/
+│   └── app/
+│       ├── api/routes/       # API endpoints including chat
+│       ├── services/         # Chat service with OpenAI integration
+│       └── models/           # Database models
 └── docker-compose.yml
 ```
 
-## MCP Server
-
-The unified MCP server provides AI assistants with tools to interact with your application:
-
-### Database Tools (PostgreSQL)
-- `db_list_tables` - List all tables in the database
-- `db_describe_table` - Get table schema details
-- `db_execute_query` - Run read-only SQL queries
-- `db_get_schema` - Get complete database schema
-
-### API Tools (FastAPI)
-- `api_get_schema` - Retrieve OpenAPI schema
-- `api_list_endpoints` - List all API endpoints
-- `api_call` - Make HTTP requests to the API
-- `api_test` - Run API tests with assertions
-- `api_health_check` - Check API health
-
-### Browser Tools (Playwright)
-- `browser_navigate` - Navigate to URLs
-- `browser_screenshot` - Capture screenshots
-- `browser_click` - Click elements
-- `browser_fill` - Fill form inputs
-- `browser_get_content` - Extract page content
-- `browser_visual_test` - Run visual assertions
-- `browser_generate_test` - Generate Playwright test code
-- `browser_cleanup` - Clean up browser resources
-
-### Configure Claude Desktop / Claude Code
-
-Generate and install MCP configuration:
-
-```bash
-python scripts/generate-mcp-config.py --install
-```
-
-Or manually add to your Claude configuration:
-
-```json
-{
-  "mcpServers": {
-    "app-dev": {
-      "type": "sse",
-      "url": "http://localhost:8080/sse"
-    }
-  }
-}
-```
-
 ## Development
-
-### Backend
-
-```bash
-cd backend
-
-# Install dependencies
-pip install uv
-uv pip install -e ".[dev]"
-
-# Run migrations
-alembic upgrade head
-
-# Run server
-uvicorn app.main:app --reload
-```
 
 ### Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Run dev server
 npm run dev
-
-# Add shadcn/ui components
-npx shadcn@latest add button
 ```
 
-### Database Migrations
+### Backend
 
 ```bash
 cd backend
-
-# Create a new migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
+pip install uv
+uv pip install -e ".[dev]"
+uvicorn app.main:app --reload
 ```
 
-## Docker Commands
+### Docker
 
 ```bash
 # Start all services
@@ -172,20 +126,12 @@ docker compose up -d --build
 
 # Stop all services
 docker compose down
-
-# Stop and remove volumes
-docker compose down -v
 ```
 
 ## Environment Variables
 
-See `.env.example` for all available configuration options.
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `POSTGRES_USER` | Database user | `app` |
-| `POSTGRES_PASSWORD` | Database password | `app` |
-| `POSTGRES_DB` | Database name | `app` |
-| `DATABASE_URL` | Full database URL | (constructed) |
-| `VITE_API_URL` | Frontend API URL | `http://localhost:8000` |
-| `MCP_PORT` | MCP server port | `8080` |
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key for AI assistant |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `VITE_API_URL` | Frontend API URL (default: http://localhost:8000) |
