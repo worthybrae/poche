@@ -11,6 +11,8 @@ dependencies = [
     "asyncpg>=0.30",
     "alembic>=1.14",
     "pydantic-settings>=2.6",
+    "openai>=1.58",
+    "httpx>=0.28",
 ]
 
 [project.optional-dependencies]

@@ -27,6 +27,7 @@ help:
 	@echo "Testing:"
 	@echo "  make test         - Run backend tests"
 	@echo "  make test-frontend- Run frontend tests"
+	@echo "  make test-e2e     - Run E2E tests with Playwright"
 	@echo ""
 	@echo "MCP:"
 	@echo "  make mcp-config   - Generate MCP config for Claude"
@@ -139,6 +140,15 @@ test:
 test-frontend:
 	@echo "Running frontend tests..."
 	@cd frontend && npm test
+
+test-e2e:
+	@echo "Running E2E tests with Playwright..."
+	@mkdir -p tests/results
+	@docker compose --profile test build e2e-tests
+	@docker compose --profile test run --rm e2e-tests
+	@echo ""
+	@echo "Test results saved to tests/results/"
+	@echo "Open tests/results/report.html to view the report"
 
 lint:
 	@echo "Linting..."

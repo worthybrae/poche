@@ -22,6 +22,7 @@ wheels/
 .venv/
 venv/
 ENV/
+*.png
 
 # Node
 node_modules/

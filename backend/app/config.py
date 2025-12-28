@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
 
+    # OpenAI
+    openai_api_key: str = ""
+
     @property
     def is_development(self) -> bool:
         return self.environment == "development"

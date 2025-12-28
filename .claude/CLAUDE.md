@@ -1,5 +1,18 @@
 # CLAUDE.md - Project Guide for AI Assistants
 
+## ⚠️ CRITICAL: Docker Environment
+
+**ALL services run inside Docker containers. NEVER run commands directly on the host machine.**
+
+- Use `make start` to start all services
+- Use `make test-e2e` to run Playwright tests (runs inside Docker with the `e2e-tests` service)
+- Use `make logs` to view logs from containers
+- Use `docker compose exec <service> <command>` to run commands inside containers
+
+**DO NOT** install Playwright locally or run Python scripts directly. All E2E tests must run via `make test-e2e`.
+
+---
+
 ## Project Overview
 
 This is a full-stack application template with AI-assisted development via MCP (Model Context Protocol).
@@ -9,6 +22,7 @@ This is a full-stack application template with AI-assisted development via MCP (
 - Frontend: React + TypeScript + Vite + Tailwind + shadcn/ui
 - Database: PostgreSQL 16
 - MCP Server: Unified Python server with database, API, and browser tools
+- E2E Testing: Playwright (runs in Docker via `make test-e2e`)
 
 ## Architecture
 

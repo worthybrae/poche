@@ -72,12 +72,47 @@ async function request<T>(
 /**
  * Type-safe API client with methods for each resource.
  */
+// Chat types
+interface ChatMessage {
+  message: string
+  conversation_history?: Array<{ role: string; content: string }>
+}
+
+interface ChatResponse {
+  response: string
+  tool_calls: Array<{
+    tool: string
+    arguments: Record<string, unknown>
+    result: unknown
+  }>
+}
+
+interface ChatStatus {
+  configured: boolean
+  model: string
+}
+
 export const api = {
   /**
    * Health check endpoints
    */
   health: {
     check: () => request<HealthResponse>('/health'),
+  },
+
+  /**
+   * Chat with AI assistant
+   */
+  chat: {
+    send: (message: string, history?: Array<{ role: string; content: string }>) =>
+      request<ChatResponse>('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          message,
+          conversation_history: history,
+        } as ChatMessage),
+      }),
+    status: () => request<ChatStatus>('/api/chat/status'),
   },
 
   /**

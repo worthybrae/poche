@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@db:5432/${POSTGRES_DB:-app}
       ENVIRONMENT: development
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - ./backend:/app
       - ./logs/backend:/app/logs
@@ -87,6 +88,24 @@ services:
         condition: service_started
     # Shared memory for Playwright
     shm_size: '2gb'
+
+  # ============================================
+  # E2E TESTS (Playwright)
+  # ============================================
+  e2e-tests:
+    build:
+      context: ./tests/e2e
+      dockerfile: Dockerfile
+    container_name: app-e2e-tests
+    volumes:
+      - ./tests/e2e:/tests
+      - ./tests/results:/results
+    depends_on:
+      - frontend
+      - backend
+    shm_size: '2gb'
+    profiles:
+      - test
 
 volumes:
   postgres_data:

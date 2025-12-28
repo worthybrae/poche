@@ -1,14 +1,7 @@
-import { Routes, Route } from 'react-router-dom'
-import Home from './pages/Home'
+import { Editor } from './pages/Editor'
 
 function App() {
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </div>
-  )
+  return <Editor />
 }
 
 export default App
