@@ -262,6 +262,9 @@ interface SceneActions {
   addEdge: (v1Id: string, v2Id: string) => string;
   deleteEdge: (id: string) => void;
 
+  // Face operations
+  addFace: (vertexIds: string[]) => string | null;
+
   // Selection operations
   setSelection: (ids: string[], type: EntityType) => void;
   addToSelection: (id: string, type: EntityType) => void;
@@ -661,6 +664,94 @@ export const useSceneStore = create<SceneStore>()(
         state.edges.delete(id);
         state.selectedIds.delete(id);
       });
+    },
+
+    // Face operations - directly create a face from vertex IDs
+    addFace: (vertexIds: string[]) => {
+      if (vertexIds.length < 3) return null;
+
+      const faceId = generateId();
+      let created = false;
+
+      set((state) => {
+        // Get vertex positions
+        const positions: Vector3Tuple[] = [];
+        for (const vId of vertexIds) {
+          const v = state.vertices.get(vId);
+          if (!v) return;
+          positions.push(v.position);
+        }
+
+        // Find or create edges between consecutive vertices
+        const edgeIds: string[] = [];
+        for (let i = 0; i < vertexIds.length; i++) {
+          const v1Id = vertexIds[i];
+          const v2Id = vertexIds[(i + 1) % vertexIds.length];
+
+          // Find existing edge
+          let edge = Array.from(state.edges.values()).find(
+            (e) =>
+              (e.vertices[0] === v1Id && e.vertices[1] === v2Id) ||
+              (e.vertices[0] === v2Id && e.vertices[1] === v1Id)
+          );
+
+          if (!edge) {
+            // Create new edge
+            const newEdgeId = generateId();
+            state.edges.set(newEdgeId, {
+              id: newEdgeId,
+              vertices: [v1Id, v2Id],
+              faces: [],
+            });
+            // Update vertex edge lists
+            const v1 = state.vertices.get(v1Id);
+            const v2 = state.vertices.get(v2Id);
+            if (v1) v1.edges.push(newEdgeId);
+            if (v2) v2.edges.push(newEdgeId);
+            edge = state.edges.get(newEdgeId)!;
+          }
+
+          edgeIds.push(edge.id);
+        }
+
+        // Calculate normal (cross product of first two edges)
+        const p0 = positions[0];
+        const p1 = positions[1];
+        const p2 = positions[2];
+        const v1: Vector3Tuple = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
+        const v2: Vector3Tuple = [p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]];
+        const normal: Vector3Tuple = [
+          v1[1] * v2[2] - v1[2] * v2[1],
+          v1[2] * v2[0] - v1[0] * v2[2],
+          v1[0] * v2[1] - v1[1] * v2[0],
+        ];
+        // Normalize
+        const len = Math.sqrt(normal[0] ** 2 + normal[1] ** 2 + normal[2] ** 2);
+        if (len > 0) {
+          normal[0] /= len;
+          normal[1] /= len;
+          normal[2] /= len;
+        }
+
+        // Create the face
+        state.faces.set(faceId, {
+          id: faceId,
+          edges: edgeIds,
+          normal,
+        });
+
+        // Update edges to reference this face
+        for (const edgeId of edgeIds) {
+          const edge = state.edges.get(edgeId);
+          if (edge && !edge.faces.includes(faceId)) {
+            edge.faces.push(faceId);
+          }
+        }
+
+        created = true;
+      });
+
+      return created ? faceId : null;
     },
 
     // Selection operations

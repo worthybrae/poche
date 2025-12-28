@@ -160,8 +160,9 @@ export function Faces() {
             <meshStandardMaterial
               color={color}
               side={THREE.DoubleSide}
-              transparent
-              opacity={0.8}
+              polygonOffset
+              polygonOffsetFactor={1}
+              polygonOffsetUnits={1}
             />
           </mesh>
         );

@@ -32,6 +32,7 @@ export function ChatPanel() {
   // Get store actions
   const addVertex = useSceneStore((s) => s.addVertex);
   const addEdge = useSceneStore((s) => s.addEdge);
+  const addFace = useSceneStore((s) => s.addFace);
   const clearScene = useSceneStore((s) => s.clearScene);
   const saveToHistory = useSceneStore((s) => s.saveToHistory);
 
@@ -63,13 +64,16 @@ export function ChatPanel() {
 
       const vIds = corners.map((pos) => addVertex(pos));
 
-      // Create 12 edges for a box
-      const edgePairs = [
-        [0, 1], [1, 2], [2, 3], [3, 0], // bottom
-        [4, 5], [5, 6], [6, 7], [7, 4], // top
-        [0, 4], [1, 5], [2, 6], [3, 7], // verticals
+      // Create 6 faces for a box (each face is a quad)
+      const faces = [
+        [0, 1, 2, 3], // bottom
+        [4, 5, 6, 7], // top
+        [0, 1, 5, 4], // front
+        [2, 3, 7, 6], // back
+        [0, 3, 7, 4], // left
+        [1, 2, 6, 5], // right
       ];
-      edgePairs.forEach(([a, b]) => addEdge(vIds[a], vIds[b]));
+      faces.forEach((f) => addFace(f.map((i) => vIds[i])));
 
     } else if (action === 'create_rectangle') {
       const x = (params.x as number) || 0;
@@ -87,10 +91,7 @@ export function ChatPanel() {
       ];
 
       const vIds = corners.map((pos) => addVertex(pos));
-      addEdge(vIds[0], vIds[1]);
-      addEdge(vIds[1], vIds[2]);
-      addEdge(vIds[2], vIds[3]);
-      addEdge(vIds[3], vIds[0]);
+      addFace(vIds); // Creates edges and face
 
     } else if (action === 'create_terrain') {
       const widthFt = (params.width as number) || 208;
@@ -154,22 +155,23 @@ export function ChatPanel() {
         vertices.push(row);
       }
 
-      // Create edges (grid lines)
-      for (let zi = 0; zi <= resolution; zi++) {
-        for (let xi = 0; xi <= resolution; xi++) {
-          if (xi < resolution) {
-            addEdge(vertices[zi][xi], vertices[zi][xi + 1]);
-          }
-          if (zi < resolution) {
-            addEdge(vertices[zi][xi], vertices[zi + 1][xi]);
-          }
+      // Create faces for each grid cell (quad)
+      for (let zi = 0; zi < resolution; zi++) {
+        for (let xi = 0; xi < resolution; xi++) {
+          // Create quad face from 4 corners
+          addFace([
+            vertices[zi][xi],
+            vertices[zi][xi + 1],
+            vertices[zi + 1][xi + 1],
+            vertices[zi + 1][xi],
+          ]);
         }
       }
 
     } else if (action === 'clear_scene') {
       clearScene();
     }
-  }, [addVertex, addEdge, clearScene, saveToHistory]);
+  }, [addVertex, addFace, clearScene, saveToHistory]);
 
   useEffect(() => {
     api.chat.status()

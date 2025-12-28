@@ -57,6 +57,7 @@ export function Canvas3D({ showStats = false }: Canvas3DProps) {
         gl={{
           antialias: true,
           alpha: false,
+          logarithmicDepthBuffer: true,
         }}
         onCreated={({ gl }) => {
           gl.setClearColor('#f0f0f0');
@@ -81,11 +82,14 @@ export function Canvas3D({ showStats = false }: Canvas3DProps) {
           {/* Camera controls */}
           <CameraControls />
 
-          {/* View cube in corner */}
+          {/* View cube / orientation gizmo in corner */}
           <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
             <GizmoViewport
-              axisColors={['#ff4444', '#44ff44', '#4444ff']}
+              axisColors={['#e57373', '#81c784', '#64b5f6']}
               labelColor="white"
+              axisHeadScale={1}
+              hideNegativeAxes={false}
+              labels={['X', 'Y', 'Z']}
             />
           </GizmoHelper>
 

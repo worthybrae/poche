@@ -380,14 +380,14 @@ function InteractionPlane() {
   return (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, -0.001, 0]}
+      position={[0, 0, 0]}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
     >
-      <planeGeometry args={[500, 500]} />
-      <meshBasicMaterial transparent opacity={0.001} depthWrite={false} />
+      <planeGeometry args={[20000, 20000]} />
+      <meshBasicMaterial visible={false} />
     </mesh>
   );
 }

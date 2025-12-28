@@ -5,11 +5,47 @@
  * Designed for lot sizes up to 1+ acre (208' x 208')
  */
 
-import { Grid } from '@react-three/drei';
+import { Grid, Line } from '@react-three/drei';
+import type { Vector3Tuple } from 'three';
 
 // Grid constants (1 unit = 1 inch)
 const CELL_SIZE = 12; // 1 foot
 const SECTION_SIZE = 120; // 10 feet
+const AXIS_LENGTH = 120; // 10 feet
+
+// Softer axis colors matching the view gizmo
+const AXIS_COLORS = {
+  x: '#e57373', // Soft red
+  y: '#81c784', // Soft green
+  z: '#64b5f6', // Soft blue
+};
+
+function CustomAxes() {
+  const origin: Vector3Tuple = [0, 0, 0];
+
+  return (
+    <>
+      {/* X axis - soft red */}
+      <Line
+        points={[origin, [AXIS_LENGTH, 0, 0]]}
+        color={AXIS_COLORS.x}
+        lineWidth={2}
+      />
+      {/* Y axis - soft green */}
+      <Line
+        points={[origin, [0, AXIS_LENGTH, 0]]}
+        color={AXIS_COLORS.y}
+        lineWidth={2}
+      />
+      {/* Z axis - soft blue */}
+      <Line
+        points={[origin, [0, 0, AXIS_LENGTH]]}
+        color={AXIS_COLORS.z}
+        lineWidth={2}
+      />
+    </>
+  );
+}
 
 export function CADGrid() {
   return (
@@ -29,8 +65,8 @@ export function CADGrid() {
         infiniteGrid
       />
 
-      {/* Axis lines - 10 feet each direction */}
-      <axesHelper args={[120]} />
+      {/* Custom axis lines with softer colors - 10 feet each direction */}
+      <CustomAxes />
     </>
   );
 }
